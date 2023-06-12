@@ -2,7 +2,6 @@ package com.wugui.datax.executor.service.command;
 
 import com.wugui.datatx.core.biz.model.TriggerParam;
 import com.wugui.datatx.core.enums.IncrementTypeEnum;
-import com.wugui.datatx.core.log.JobLogger;
 import com.wugui.datatx.core.util.Constants;
 import com.wugui.datatx.core.util.DateUtil;
 import com.wugui.datax.executor.util.SystemUtils;
@@ -30,32 +29,22 @@ public class BuildCommand {
      * @param dataXPyPath
      * @return
      */
-    public static String[] buildDataXExecutorCmd(TriggerParam tgParam, String tmpFilePath, String dataXPyPath) {
+    public static String[] buildDataXExecutorCmd(TriggerParam tgParam, String tmpFilePath, String dataXPyPath, String pythonPath) {
         // command process
         //"--loglevel=debug"
         List<String> cmdArr = new ArrayList<>();
-        cmdArr.add("python");
+        cmdArr.add(pythonPath);
         String dataXHomePath = SystemUtils.getDataXHomePath();
         if (StringUtils.isNotEmpty(dataXHomePath)) {
             dataXPyPath = dataXHomePath.contains("bin") ? dataXHomePath + DEFAULT_DATAX_PY : dataXHomePath + "bin" + File.separator + DEFAULT_DATAX_PY;
         }
         cmdArr.add(dataXPyPath);
-        String doc = buildDataXParam(tgParam);
+        String doc = buildJVMParam(tgParam);
         if (StringUtils.isNotBlank(doc)) {
-            cmdArr.add(doc.replaceAll(SPLIT_SPACE, TRANSFORM_SPLIT_SPACE));
+            cmdArr.add(doc);
         }
         cmdArr.add(tmpFilePath);
-        cmdArr.add(buildDataXCustomParam(tgParam));
         return cmdArr.toArray(new String[cmdArr.size()]);
-    }
-
-    private static String buildDataXCustomParam(TriggerParam tgParam) {
-        StringBuilder doc = new StringBuilder();
-        String customParam = StringUtils.isNotBlank(tgParam.getCustomParam()) ? tgParam.getCustomParam().trim() : tgParam.getCustomParam();
-        if (StringUtils.isNotBlank(customParam)) {
-            doc.append(PARAMS_CM).append(SPLIT_SPACE).append(customParam);
-        }
-        return doc.toString();
     }
 
     /**
@@ -66,11 +55,11 @@ public class BuildCommand {
      * @author Locki
      * @date 2020/9/18
      */
-    private static String buildDataXParam(TriggerParam tgParam) {
+    private static String buildJVMParam(TriggerParam tgParam) {
         StringBuilder doc = new StringBuilder();
         String jvmParam = StringUtils.isNotBlank(tgParam.getJvmParam()) ? tgParam.getJvmParam().trim() : tgParam.getJvmParam();
         if (StringUtils.isNotBlank(jvmParam)) {
-            doc.append(JVM_CM).append(TRANSFORM_QUOTES).append(jvmParam).append(TRANSFORM_QUOTES);
+            doc.append(JVM_CM).append(TRANSFORM_QUOTES).append(jvmParam.replaceAll(SPLIT_SPACE, TRANSFORM_SPLIT_SPACE)).append(TRANSFORM_QUOTES);
         }
         return doc.toString();
     }
@@ -84,17 +73,24 @@ public class BuildCommand {
      * @date 2020/9/18
      */
     public static HashMap<String, String> buildDataXParamToMap(TriggerParam tgParam) {
+
         String partitionStr = tgParam.getPartitionInfo();
         Integer incrementType = tgParam.getIncrementType();
         String replaceParam = StringUtils.isNotBlank(tgParam.getReplaceParam()) ? tgParam.getReplaceParam().trim() : null;
         if (incrementType != null && replaceParam != null) {
-            if (IncrementTypeEnum.ID.getCode() == incrementType) {
-                long startId = tgParam.getStartId();
-                long endId = tgParam.getEndId();
+
+            if (IncrementTypeEnum.ID.getCode().equals(incrementType)) {
+                String startId = tgParam.getStartId();
+                String endId = tgParam.getEndId();
                 String formatParam = String.format(replaceParam, startId, endId);
                 return getKeyValue(formatParam);
-            } else if (IncrementTypeEnum.TIME.getCode() == incrementType) {
+
+            }
+
+            if (IncrementTypeEnum.time.contains(incrementType)) {
+
                 String replaceParamType = tgParam.getReplaceParamType();
+
                 if (StringUtils.isBlank(replaceParamType) || "Timestamp".equals(replaceParamType)) {
                     long startTime = tgParam.getStartTime().getTime() / 1000;
                     long endTime = tgParam.getTriggerTime().getTime() / 1000;
@@ -109,9 +105,18 @@ public class BuildCommand {
                     return getKeyValue(formatParam);
                 }
             }
+            // 这里是mongodb主键自增
+            if(IncrementTypeEnum.MONGODB_ID.getCode().equals(incrementType)){
+                String startId = tgParam.getStartId();
+                String endId = tgParam.getEndId();
+                String formatParam = String.format(replaceParam, startId, endId);
+                return getKeyValue(formatParam);
+            }
+
         }
 
-        if (incrementType != null && IncrementTypeEnum.PARTITION.getCode() == incrementType) {
+        if (IncrementTypeEnum.partition.contains(incrementType)) {
+
             if (StringUtils.isNotBlank(partitionStr)) {
                 List<String> partitionInfo = Arrays.asList(partitionStr.split(SPLIT_COMMA));
                 String formatParam = String.format(PARAMS_CM_V_PT, buildPartition(partitionInfo));
@@ -119,6 +124,7 @@ public class BuildCommand {
             }
 
         }
+
         return null;
     }
 
@@ -132,7 +138,7 @@ public class BuildCommand {
      */
     private static HashMap<String, String> getKeyValue(String formatParam) {
         String[] paramArr = formatParam.split(PARAMS_SYSTEM);
-        HashMap<String, String> map = new HashMap<String, String>();
+        HashMap<String, String> map = new HashMap<>();
 
         for (String param : paramArr) {
             if (StringUtils.isNotBlank(param)) {
@@ -141,6 +147,7 @@ public class BuildCommand {
                 map.put(keyValue[0], keyValue[1]);
             }
         }
+
         return map;
     }
 
@@ -156,20 +163,13 @@ public class BuildCommand {
      * @date 2020/9/18
      */
     public static Map<String, String> builtInVar(){
-        Map<String, String> map = new HashMap<String, String>();
+        Map<String, String> map = new HashMap<>();
         map.put("datax_biz_date", DateUtil.format(new Date(), "yyyy-MM-dd"));
         map.put("datax_biz_time", DateUtil.format(new Date(), "yyyy-MM-dd HH:mm:ss"));
         map.put("datax_biz_unixtimestamp", System.currentTimeMillis() + "");
         return map;
     }
 
-    private void buildPartitionCM(StringBuilder doc, String partitionStr) {
-        if (StringUtils.isNotBlank(partitionStr)) {
-            doc.append(SPLIT_SPACE);
-            List<String> partitionInfo = Arrays.asList(partitionStr.split(SPLIT_COMMA));
-            doc.append(String.format(PARAMS_CM_V_PT, buildPartition(partitionInfo)));
-        }
-    }
 
     private static String buildPartition(List<String> partitionInfo) {
         String field = partitionInfo.get(0);

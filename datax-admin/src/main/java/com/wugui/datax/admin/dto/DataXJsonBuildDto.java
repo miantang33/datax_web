@@ -9,38 +9,44 @@ import java.util.List;
  * 构建json dto
  *
  * @author jingwk
- * @ClassName DataxJsonDto
+ * @ClassName DataXJsonDto
  * @Version 2.1.1
  * @since 2020/03/14 07:15
  */
 @Data
-public class DataXJsonBuildDto implements Serializable {
+public class DataXJsonBuildDTO implements Serializable {
 
     private Long readerDatasourceId;
+
+    private String readerTableSchema;
 
     private List<String> readerTables;
 
     private List<String> readerColumns;
 
+    private List<String> transformer;
+
     private Long writerDatasourceId;
+
+    private String writerTableSchema;
 
     private List<String> writerTables;
 
     private List<String> writerColumns;
 
-    private HiveReaderDto hiveReader;
+    private HiveReaderDTO hiveReader;
 
-    private HiveWriterDto hiveWriter;
+    private HiveWriterDTO hiveWriter;
 
-    private HbaseReaderDto hbaseReader;
+    private HbaseReaderDTO hbaseReader;
 
-    private HbaseWriterDto hbaseWriter;
+    private HbaseWriterDTO hbaseWriter;
 
-    private RdbmsReaderDto rdbmsReader;
+    private RdbmsReaderDTO rdbmsReader;
 
-    private RdbmsWriterDto rdbmsWriter;
+    private RdbmsWriterDTO rdbmsWriter;
 
-    private MongoDBReaderDto mongoDBReader;
+    private MongoDBReaderDTO mongoDBReader;
 
-    private MongoDBWriterDto mongoDBWriter;
+    private MongoDBWriterDTO mongoDBWriter;
 }

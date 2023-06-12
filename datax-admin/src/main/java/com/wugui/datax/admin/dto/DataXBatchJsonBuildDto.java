@@ -14,19 +14,23 @@ import java.util.List;
  * @since 2020/05/05 17:15
  */
 @Data
-public class DataXBatchJsonBuildDto implements Serializable {
+public class DataXBatchJsonBuildDTO implements Serializable {
 
     private Long readerDatasourceId;
+
+    private String readerTableSchema;
 
     private List<String> readerTables;
 
     private Long writerDatasourceId;
 
+    private String writerTableSchema;
+
     private List<String> writerTables;
 
     private int templateId;
 
-    private RdbmsReaderDto rdbmsReader;
+    private RdbmsReaderDTO rdbmsReader;
 
-    private RdbmsWriterDto rdbmsWriter;
+    private RdbmsWriterDTO rdbmsWriter;
 }

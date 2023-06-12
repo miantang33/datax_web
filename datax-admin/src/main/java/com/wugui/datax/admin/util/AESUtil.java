@@ -13,8 +13,11 @@ import java.security.NoSuchAlgorithmException;
 import java.security.SecureRandom;
 import java.util.Base64;
 
+/**
+ * @author water
+ */
 @Slf4j
-public class AESUtil {
+public class AesUtil {
 
     private static String DEFAULT_CIPHER_ALGORITHM = "SHA1PRNG";
     private static String KEY_ALGORITHM = "AES";
@@ -85,7 +88,7 @@ public class AESUtil {
         } catch (Exception e) {
             log.warn("content encrypt error {}", e.getMessage());
         }
-        return null;
+        return message;
     }
 
     public static String decrypt(String ciphertext) {
@@ -96,7 +99,7 @@ public class AESUtil {
         } catch (Exception e) {
             log.warn("content decrypt error {}", e.getMessage());
         }
-        return null;
+        return ciphertext;
     }
 
     public static void main(String[] args) {
