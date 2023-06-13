@@ -15,7 +15,7 @@ jobs:
     steps:
     - uses: actions/checkout@v3
     - name: Build the Docker image
-      run: docker build . --file docker/admin/Dockerfile --tag my-image-name:${{ github.ref_name	 }}
+      run: docker build . --file docker/admin/Dockerfile --tag miantang3/datax_web:${{ github.ref_name	 }}
     - name: Publish to Docker Repository
       uses: elgohr/Publish-Docker-Github-Action@v5
       with:
