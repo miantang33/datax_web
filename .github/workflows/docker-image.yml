@@ -20,6 +20,7 @@ jobs:
       uses: elgohr/Publish-Docker-Github-Action@v5
       with:
         name: miantang3/datax_web:${{ github.ref_name	 }}
+        dockerfile: docker/admin/Dockerfile
         repository: miantang3/datax_web
         username: ${{ secrets.DOCKERHUB_NAME }}
         password: ${{ secrets.DOCKERHUB_PWD }}
