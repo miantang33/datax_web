@@ -12,7 +12,7 @@ LABEL datax-admin-versiom="${DATAX_VERSION}" \
 			org.label-schema.vcs-url="https://github.com/WeiYe-Jing/datax-web" \
 			org.opencontainers.image.documentation="https://github.com/WeiYe-Jing/datax-web/blob/master/doc/datax-web/datax-web-deploy.md"
 
-ADD wait-for-it.sh /etc/init.d/
+ADD docker/admin/wait-for-it.sh /etc/init.d/
 ADD ${DATAX_NAME}_${DATAX_VERSION}.tar.gz /opt/
 
 # 安装 GNU libc (aka glibc)和C.UTF-8 locale的依赖 以及设置时区
