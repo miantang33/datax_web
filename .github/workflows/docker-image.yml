@@ -21,6 +21,6 @@ jobs:
       with:
         name: miantang3/datax_web:${{ github.ref_name	 }}
         repository: miantang3/datax_web
-        username: ${{ secrets.DOCKER_USERNAME }}
-        password: ${{ secrets.DOCKER_PASSWORD }}
+        username: ${{ secrets.DOCKERHUB_NAME }}
+        password: ${{ secrets.DOCKERHUB_PWD }}
         tag_semver: true 
